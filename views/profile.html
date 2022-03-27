@@ -1,0 +1,29 @@
+{% extends 'layout.html' %}
+
+{% block contents %}
+    <div class="information">
+        {% for twit in twits %}
+            {% if loop.index === 1 %}
+                <p style="width: 250px; font-weight: bold; height: 30px; text-align: center; color: rgb(168, 139, 201);">MY INFORMATION</p>
+                <div class="info-label"><label for="info-email">이메일</label></div>
+                <div class="info">{{user.email}}</div>
+                <div class="info-label"><label for="info-name">이름 or 닉네임</label></div>
+                <div class="info">{{user.name}}</div>
+                <div class="info-label"><label for="info-list">전체 리스트</label></div>
+                <div class="info">{{loop.length}}</div>
+                <div class="info-label"><label for="info-todo">해야 할 리스트</label></div>
+                {% set count = 1 %}
+                {% set sum = 0 %}
+            {% endif %}
+            {% if twit.check === 'TODO' %} 
+                {% set sum = sum + count %}
+            {% endif %} 
+            {% if loop.length === loop.index %}
+                <div class="info">{{sum}}</div>
+                <div class="info-label"><label for="info-done">완료한 리스트</label></div>
+                <div class="info">{{loop.length - sum}}</div>
+            {% endif %}
+        {% endfor %}
+    </div>
+{% endblock %}
+

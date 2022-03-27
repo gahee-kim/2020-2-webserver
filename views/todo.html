@@ -1,0 +1,137 @@
+{% extends 'layout.html' %}
+
+{% block contents %}
+    <div class="timeline">
+      {% if user %}
+        <div>
+          <form id="twit-form" action="/todo" method="post">
+            <div class="input_todo">
+              <textarea id="twit" name="content" maxlength="200"></textarea>
+            </div>
+            <div class="submit_btn">
+              <button id="twit-btn" type="submit" class="btn">OK</button>
+            </div>
+          </form>
+        </div>
+      {% endif %}
+      <div class="twits">
+        {% for twit in twits %}
+          <div class="twit">
+            <input type="hidden" value="{{twit.User.id}}" class="twit-user-id">
+            <input type="hidden" value="{{twit.id}}" class="twit-id">
+            <div class="twit-author">{{twit.User.name}}</div>
+            {% if twit.check === 'TODO' %}
+              {% if user.id === twit.User.id %}
+                <button class="DONE"></button>
+              {% endif %}
+              <div style="padding: 10px 10px 10px 0;">{{twit.content}}</div>
+            {% elif twit.check === 'DONE' %}
+              {% if user.id === twit.User.id %}
+                <button class="TODO" style="background-color: rgb(168, 139, 201);"></button>
+              {% endif %}
+              <div style="text-decoration: line-through; padding: 10px 10px 10px 0;">{{twit.content}}</div>
+            {% endif %}
+            <p></p>
+            {% if user.id === twit.User.id %}
+            <button class="modify">mod.</button>
+            <button class="delete">del.</button>
+            {% endif %}
+            <p style="margin: 40px;"></p>
+          </div>
+        {% endfor %}
+      </div>
+    </div>
+{% endblock %}
+
+{% block script %}
+  <script>
+    document.querySelectorAll('.delete').forEach(function(tag) {
+      tag.addEventListener('click', function() {
+        const isLoggedIn = document.querySelector('#my-id');
+        const twitId = tag.parentNode.querySelector('.twit-id').value;
+        if (isLoggedIn) {
+          const userId = tag.parentNode.querySelector('.twit-user-id').value;
+          const myId = isLoggedIn.value;
+          if (userId === myId) {
+            if (confirm('삭제하시겠습니까?')) {
+              axios.delete(`/todo/${twitId}`)
+                .then(() => {
+                  location.reload();
+                })
+                .catch((err) => {
+                  console.error(err);
+                });
+            }
+          }
+        }
+      });
+    });
+    document.querySelectorAll('.modify').forEach(function(tag) {
+      tag.addEventListener('click', function() {
+        const isLoggedIn = document.querySelector('#my-id');
+        const twitId = tag.parentNode.querySelector('.twit-id').value;
+        if (isLoggedIn) {
+          const userId = tag.parentNode.querySelector('.twit-user-id').value;
+          const myId = isLoggedIn.value;
+          if (userId === myId) {
+            const newContent = prompt('수정할 내용을 입력하세요');
+            if (!newContent) {
+              return alert('내용을 입력해주세요');
+            }
+            if (confirm('수정하시겠습니까?')) {
+              axios.patch(`/todo/${twitId}`, { content: newContent })
+                .then(() => {
+                  location.reload();
+                })
+                .catch((err) => {
+                  console.error(err);
+                });
+            }
+          }
+        }
+      });
+    });
+    document.querySelectorAll('.TODO').forEach(function(tag) {
+      tag.addEventListener('click', function() {
+        const isLoggedIn = document.querySelector('#my-id');
+        const twitId = tag.parentNode.querySelector('.twit-id').value;
+        if (isLoggedIn) {
+          const userId = tag.parentNode.querySelector('.twit-user-id').value;
+          const myId = isLoggedIn.value;
+          if (userId === myId) {
+            if (confirm('해제하시겠습니까?')) {
+              axios.patch(`/todo/${twitId}/check/todo`, { check: 'TODO' })
+                .then(() => {
+                  location.reload();
+                })
+                .catch((err) => {
+                  console.error(err);
+                });
+            }
+          }
+        }
+      });
+    });
+    document.querySelectorAll('.DONE').forEach(function(tag) {
+      tag.addEventListener('click', function() {
+        const isLoggedIn = document.querySelector('#my-id');
+        const twitId = tag.parentNode.querySelector('.twit-id').value;
+        if (isLoggedIn) {
+          const userId = tag.parentNode.querySelector('.twit-user-id').value;
+          const myId = isLoggedIn.value;
+          if (userId === myId) {
+            if (confirm('체크하시겠습니까?')) {
+              axios.patch(`/todo/${twitId}/check/done`, { check: 'DONE' })
+                .then(() => {
+                  location.reload();
+                })
+                .catch((err) => {
+                  console.error(err);
+                });
+            }
+          }
+        }
+      });
+    });
+  </script>
+{% endblock %}
